@@ -5,5 +5,5 @@ instructions on installing driver on chrome found here
 can be used with other browsers, safari, opera, explorer, firefox, etc. must have matching driver for browser
 selenium:
 *automate login 
-*navigate 
+*navigate page buttons and pagination
 *initial data scrape from search results to obtain name and url of profile
