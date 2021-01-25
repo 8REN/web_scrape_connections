@@ -7,3 +7,11 @@ selenium:
 *automate login 
 *navigate page buttons and pagination
 *initial data scrape from search results to obtain name and url of profile
+*iterate through urls 
+*scrape individual profile for 
+*** name
+*** employment
+how many jobs? fill with NaN if fewer jobs than chosen
+*** education
+2 colleges
+*** use these columns to create a string in a new column for message to connection upon requesting to 'connect' initially
