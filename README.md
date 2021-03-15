@@ -37,4 +37,6 @@ import re
 
 Once driver is initialized, expand Selenium controlled browser window to full screen.
 Make sure that 'inspect' window is as small as possible due to dynamic loading nature of ajax format webpage.
-Otherwise, some elements will not be found by webdriver, throwing error causing script to stop running
+Otherwise, some elements will not be found by webdriver, throwing error causing script to stop running.
+
+Can only do web scraping on full profile, getting experience and education information on 100 profiles or so at once, max.
