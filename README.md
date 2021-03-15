@@ -40,4 +40,4 @@ Make sure that 'inspect' window is as small as possible due to dynamic loading n
 Otherwise, some elements will not be found by webdriver, throwing error causing script to stop running.
 
 Can only do web scraping on full profile, getting experience and education information on 100 profiles or so at once, max.
-Website will not handle more than this. Can get several pages of search results archived at once,
+Website will not handle more than this. Can get several pages of search results archived at once, then slice profile urls list
