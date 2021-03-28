@@ -42,7 +42,7 @@ def sign_in(email, password):
 
 
 # arguments input as strings for email and password for linkedin website
-sign_in('email@gmail.com', 'password')
+#sign_in('email@gmail.com', 'password')
 
 
 # # automate login 
@@ -72,6 +72,5 @@ def get_driver_login(email, password, PATH):
 # In[ ]:
 
 
-PATH = "C:\Program Files (x86)\chromedriver.exe"
-driver = get_driver_login('email@gmail.com', 'password1!', PATH)
+#driver = get_driver_login('email@gmail.com', 'password1!', PATH)
 
