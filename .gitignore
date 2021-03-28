@@ -4,3 +4,4 @@
 .ipynb_checkpoints/auto_login-checkpoint.ipynb
 .ipynb_checkpoints/searchScrapeConnectSave-checkpoint.ipynb
 __pycache__/auto_login.cpython-38.pyc
+*.csv
