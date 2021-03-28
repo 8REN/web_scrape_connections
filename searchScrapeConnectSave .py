@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[14]:
+# In[1]:
 
 
 from selenium import webdriver
@@ -10,39 +10,15 @@ from selenium.common.exceptions import NoSuchElementException, ElementNotInterac
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-
-
-# In[15]:
-
-
 import time
 import csv
 import numpy as np
 import pandas as pd
 import re
+from auto_login import get_driver_login
 
 
-# In[16]:
-
-
-def sign_in(email, password, PATH):
-#     this function automates login process on linkedin, 
-#     provide email and password as strings
-#     assign webdriver instance to driver variable using function
-    driver = webdriver.Chrome(PATH)
-    time.sleep(5)
-    # webdriver gets page
-    driver.get("https://www.linkedin.com/")
-    # pause for page to load
-    time.sleep(3)
-    # locate and send login email and password
-    driver.find_element_by_id("session_key").send_keys(email)
-    driver.find_element_by_id("session_password").send_keys(password)
-    driver.find_element_by_class_name("sign-in-form__submit-button").click()
-    return driver
-
-
-# In[17]:
+# In[4]:
 
 
 def people_scrape(search_term, num_pages):  
@@ -140,7 +116,7 @@ def people_scrape(search_term, num_pages):
     return df
 
 
-# In[18]:
+# In[5]:
 
 
 #function to locate and interact with "next" button at bottom of search
@@ -152,7 +128,7 @@ def goto_next_page():
     driver.execute_script('arguments[0].click();',go_to_next)
 
 
-# In[19]:
+# In[6]:
 
 
 def get_experience():
@@ -168,7 +144,7 @@ def get_experience():
     time.sleep(5)
     # locate experience section element
     exp = background.find_element_by_css_selector(
-                "section#experience-section.pv-profile-section.experience-section")
+                "section#experience-section.pv-profile-section.experience-section.ember-view")
     # access individual job containers in list format 
     history = exp.find_elements_by_css_selector('li.pv-entity__position-group-pager')
     job_count = len(history)
@@ -204,7 +180,7 @@ def get_experience():
     
 
 
-# In[20]:
+# In[7]:
 
 
 def get_email():
@@ -238,7 +214,7 @@ def get_email():
     return name, fname, email
 
 
-# In[21]:
+# In[37]:
 
 
 def profile_connect(message):
@@ -256,12 +232,12 @@ def profile_connect(message):
         message_input = driver.find_element_by_id('custom-message').send_keys(message)
         # send the message & connection request
         driver.find_element_by_class_name('ml1').click()
-        print('Message :  ' +message+ ' sent')
+        
     except (NoSuchElementException, ElementNotInteractableException):
-        print('Message : '+message+ 'NOT sent, previously requested, or not available')
+        pass
 
 
-# In[22]:
+# In[9]:
 
 
 def profile_scrape(list_profile_urls):
@@ -309,7 +285,7 @@ def make_connection(url_message_dict):
     print('Process complete '+str(counter)+ ' connections requested')
 
 
-# In[23]:
+# In[10]:
 
 
 def search_scrape_connect(search_term, num_pages):   
@@ -338,27 +314,152 @@ def search_scrape_connect(search_term, num_pages):
     driver.quit()
 
 
-# In[24]:
+# In[ ]:
 
 
-df = pd.read_csv('data engineer.csv')
 
 
-# In[26]:
+
+# In[17]:
 
 
-PATH = "C:\Program Files (x86)\chromedriver.exe"
-driver =  sign_in('email@gmail.com', 'password1!', PATH)
+def scrape_connect(search_df):   
+    profile_urls = search_df.fetch
+    detail_df = profile_scrape(profile_urls)
+
+    df = pd.concat([search_df, detail_df], axis=1)
+    df = df.loc[df.company1 != 'nan']
+    df = df.loc[df.job1 != 'nan']
+
+    df['personalized_message'] = ("Hi " + df.first_name +", I am a data scientist in the DC area. My background is in video editing. "
+                                                       "After completing the Flatiron data science program,  I am transitioning into the DS/ML career field" 
+                                                       ", hoping to segue into AI."
+                                                       " I see that you are a " + df.job1 + "at "+ df.company1+
+                                                       ", so I just wanted to reach out, connect, and say hello!")  
+
+    url_message_dict = dict(zip(list(df.fetch), list(df.personalized_message)))
+    df.to_csv('connections.csv')
+    print(f'initial {search_term}.csv overwritten, final csv file saved')
+    make_connection(url_message_dict)
+    return df
+    driver.quit()
+
+
+# In[47]:
+
+
+# utilized in connect function to obtain name, job and company info for message without saving as csv
+def get_job_company():
+    time.sleep(3)
+    w = WebDriverWait(driver, 10)
+    w.until(EC.presence_of_element_located((By.CSS_SELECTOR,"div.profile-detail")))
+    h2_items = driver.find_elements_by_tag_name(
+        "h2")
+    driver.execute_script("arguments[0].scrollIntoView();", h2_items[1])
+    background = driver.find_element_by_css_selector(
+        "div#oc-background-section")
+    driver.execute_script("arguments[0].scrollIntoView();", background)
+    time.sleep(6)
+    # locate experience section element
+    exp = background.find_element_by_css_selector(
+                "section#experience-section.pv-profile-section.experience-section.ember-view")
+    # access individual job containers in list format 
+    history = exp.find_elements_by_css_selector('li.pv-entity__position-group-pager')
+    job_count = len(history)
+    details = history[0]
+#          use of  try/except clause to locate element to avoid 'element not found' error which halts program
+# job title
+    try:
+        job = details.find_element_by_tag_name(
+                        'h3').get_attribute('innerText')
+    except NoSuchElementException:
+        job = 'nan'
+ # company of employment
+    try:
+        company = details.find_element_by_tag_name(
+                        'p.pv-entity__secondary-title').get_attribute('innerText')
+    except NoSuchElementException:
+        company = 'nan'
+    job_info = [job, company]
+    return job_info
 
 
 # In[ ]:
 
 
-search_scrape_connect('artificial intelligence engineer', 5)
+def get_first_name():
+    driver.execute_script("window.scrollTo(0, 0);")
+    time.sleep(2)
+    header = driver.find_elements_by_css_selector(
+            "ul.pv-top-card--list")
+    # name on profile
+    header_text = header[0].get_attribute('innerText')
+   # first name derived from name
+    fname = header_text.split(' ')[0]
+    return fname
+
+
+# In[58]:
+
+
+def connect_name(search_df):   
+# use to complete connection process when timeout errors occur mid process for scrape part of function
+#  use df obtained from search function as search_df 
+# use this if df names are incomplete or if only urls are present, this function includes the get_first_name function to fill message
+    profile_urls = search_df.fetch
+    for url in profile_urls:
+        driver.get(url)
+        fname = get_first_name()
+        job_info = get_job_company()
+        current_job = job_info[0]
+        current_company = job_info[1]
+        if current_job != 'nan':
+            if current_company != 'nan':
+                message = ("Hi " + fname +", I am a data scientist in the DC area. My background is in video editing. ",
+                                                               "I am transitioning into the DS/ML career field, hoping to segue into AI.", 
+                                                               " How do you like your role as " + current_job + " at "+ current_company+"?",
+                                                               "Anyway, I just wanted to reach out, connect, and say hello!")  
+
+
+                profile_connect(message)
+                print(f'Connection complete: {fname} // {current_company} // {current_job} ')
 
 
 # In[ ]:
 
 
+def connect(search_df):   
+# use to complete connection process when timeout errors occur mid process for scrape part of function
+#  use df obtained from search function as search_df 
+# uses name acquired in people_search to complete message
+    url_name_dict = dict(zip(list(search_df.name), list(search_df.fetch)))
+    for name, url in url_name_dict.items():
+        driver.get(url)
+   # first name derived from name
+        fname = name.split(' ')[0]
 
+        job_info = get_job_company()
+        current_job = job_info[0]
+        current_company = job_info[1]
+        if current_job != 'nan':
+            if current_company != 'nan':
+                message = ("Hi " + fname +", I am a data scientist in the DC area. My background is in video editing. ",
+                                                               "I am transitioning into the DS/ML career field, hoping to segue into AI.", 
+                                                               " How do you like your role as " + current_job + " at "+ current_company+"?",
+                                                               "Anyway, I just wanted to reach out, connect, and say hello!")  
+
+
+                profile_connect(message)
+                print(f'Connection complete: {name} // {current_company} // {current_job} ')
+
+
+# In[12]:
+
+
+driver =  sign_in('email@gmail.com', 'password1!', PATH = "C:\Program Files (x86)\chromedriver.exe")
+# does not return second csv with more details like email, location, dates, etc
+search_df = people_scrape('data scientist', 3)
+connect(search_df)
+# does return second csv with more details like email, location, dates, etc
+search_scrape_connect('data scientist', 3)
 
