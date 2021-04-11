@@ -5,5 +5,6 @@
 .ipynb_checkpoints/searchScrapeConnectSave-checkpoint.ipynb
 __pycache__/auto_login.cpython-38.pyc
 *.csv
-*.ipynb
+*.ipynb_checkpoints/*
 __pycache__/core_scrape_functions.cpython-38.pyc
+/personalLinkedinScraper.ipynb
