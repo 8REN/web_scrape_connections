@@ -36,6 +36,7 @@ import requests
 import re
 
 Once driver is initialized, expand Selenium controlled browser window to full screen.
+For best results, set browser font in window opened by selenium to 'extra small' and expand window.
 Make sure that 'inspect' window is as small as possible due to dynamic loading nature of ajax format webpage.
 Otherwise, some elements will not be found by webdriver, throwing error causing script to stop running.
 
